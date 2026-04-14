@@ -1,0 +1,156 @@
+/* TIS Insurance Broker - Common CSS 2026
+   Đảm bảo tệp này được lưu dưới định dạng UTF-8
+*/
+
+@charset "UTF-8";
+
+/* 1. KHAI BÁO BIẾN HỆ THỐNG (CSS Variables) */
+:root {
+    /* Brand Colors */
+    --primary-color: #D71920;    /* Đỏ TIS */
+    --primary-hover: #B01218;
+    --secondary-color: #6c757d;
+    --dark-color: #212529;
+    --light-bg: #F8F9FA;
+    
+    /* Semantic Colors */
+    --success-color: #198754;
+    --warning-color: #FFC107;
+    --danger-color: #DC3545;
+    --info-color: #0D6EFD;
+    
+    /* Typography */
+    --font-main: 'Be Vietnam Pro', 'Segoe UI', Roboto, Arial, sans-serif;
+    --text-main: #333333;
+    --text-muted: #6C757D;
+    
+    /* Effects */
+    --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
+    --shadow-md: 0 .5rem 1rem rgba(0,0,0,.15);
+    --transition-fast: all 0.2s ease;
+    --transition-slow: all 0.4s ease;
+}
+
+/* 2. RESET & GLOBAL STYLES */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-main) !important;
+    background-color: var(--light-bg);
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Khắc phục lỗi dấu tiếng Việt bị cắt trên một số trình duyệt */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-main);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+a {
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 3. UTILITY CLASSES (Các lớp tiện ích) */
+.cursor-pointer { cursor: pointer; }
+
+/* Text colors */
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--secondary-color) !important; }
+.text-success { color: var(--success-color) !important; }
+
+/* Backgrounds */
+.bg-light-custom { background-color: var(--light-bg); }
+
+/* Buttons Overrides */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 8px;
+    transition: var(--transition-fast);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(215, 25, 32, 0.2);
+}
+
+.btn-outline-danger {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* 4. COMPONENT BASICS */
+
+/* Tùy chỉnh thanh cuộn cho hiện đại */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* CKEditor height fix */
+.ck-editor__editable_inline {
+    min-height: 250px;
+}
+
+/* Card basic styling */
+.card-custom {
+    background: #fff;
+    border-radius: 12px;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-slow);
+}
+
+.card-custom:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Phân cách trang trí */
+.divider-red {
+    width: 50px;
+    height: 4px;
+    background: var(--primary-color);
+    border-radius: 2px;
+    margin: 10px 0;
+}
