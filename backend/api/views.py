@@ -165,6 +165,9 @@ class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Order.objects.none() # Trả về list rỗng cho Swagger
+    
         user = self.request.user
         if user.role in ['admin', 'super_admin']:
             return Order.objects.all()
@@ -196,6 +199,15 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # 1. Bỏ qua nếu là fake view của Swagger
+        if getattr(self, 'swagger_fake_view', False):
+            return EnterpriseEmployee.objects.none()
+
+        # 2. Đảm bảo user đã đăng nhập
+        if not self.request.user.is_authenticated:
+            return EnterpriseEmployee.objects.none()
+
+        # Code cũ của bạn
         return EnterpriseEmployee.objects.filter(enterprise=self.request.user)
 
     def perform_create(self, serializer):

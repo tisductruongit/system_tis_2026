@@ -170,36 +170,91 @@ class ConsultationRequest(models.Model): #
 
 # backend/api/models.py
 
+from django.db import models
+from django.contrib.auth import get_user_model
+
+# Lấy model User hiện tại của hệ thống
+User = get_user_model()
+
 class ChatMessage(models.Model):
-    """
-    Lưu trữ lịch sử tin nhắn giữa Khách hàng và Nhân viên
-    """
+    # Định nghĩa các loại tệp đính kèm được hỗ trợ
+    ATTACHMENT_TYPES = (
+        ('image', 'Hình ảnh'),
+        ('document', 'Tài liệu'),
+        ('video', 'Video'),
+        ('audio', 'Âm thanh'),
+    )
+
+    # LƯU Ý: Thay 'ConsultationRequest' bằng đúng tên Model yêu cầu tư vấn của bạn nếu khác
     consultation = models.ForeignKey(
-        ConsultationRequest, 
-        on_delete=models.CASCADE, 
-        related_name='messages'  # Giúp gọi consultation.messages.all() dễ dàng
+        'ConsultationRequest', 
+        on_delete=models.CASCADE,
+        related_name='messages',
+        verbose_name="Yêu cầu tư vấn"
     )
     
-    # Người gửi: 
-    # - Nếu là Staff/Admin: Bắt buộc có User.
-    # - Nếu là Khách: Có thể null (khách vãng lai) hoặc có User (khách thành viên).
-    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sent_messages',
+        verbose_name="Người gửi" # Null nếu là khách vãng lai chưa có tài khoản
+    )
     
-    message = models.TextField(verbose_name="Nội dung tin nhắn")
+    # Cho phép null/blank vì người dùng có thể chỉ gửi mỗi bức ảnh mà không có text
+    message = models.TextField(
+        blank=True, 
+        null=True,
+        verbose_name="Nội dung tin nhắn"
+    )
     
-    # Cờ quan trọng để Frontend biết hiển thị bên trái hay phải
-    # True = Staff/Admin trả lời (Bên phải)
-    # False = Khách nhắn (Bên trái)
-    is_staff_reply = models.BooleanField(default=False)
+    is_staff_reply = models.BooleanField(
+        default=False,
+        verbose_name="Là phản hồi của Admin/Staff"
+    )
+
+    # --- CÁC TRƯỜNG MỚI NÂNG CẤP ---
     
-    # [QUAN TRỌNG] Đổi tên field này thành created_at để khớp với code views.py của bạn
-    created_at = models.DateTimeField(auto_now_add=True)
-    file = models.FileField(upload_to='chat_files/', null=True, blank=True)
-    file_type = models.CharField(max_length=20, null=True, blank=True) # 'image', 'file', 'text'
+    attachment = models.FileField(
+        upload_to='chat_attachments/%Y/%m/', # Tự động tạo thư mục theo năm/tháng để gọn gàng
+        blank=True,
+        null=True,
+        verbose_name="Tệp đính kèm"
+    )
+    
+    attachment_type = models.CharField(
+        max_length=20,
+        choices=ATTACHMENT_TYPES,
+        blank=True,
+        null=True,
+        verbose_name="Loại tệp đính kèm"
+    )
+    
+    is_read = models.BooleanField(
+        default=False,
+        verbose_name="Trạng thái đã xem"
+    )
+
+    # --- THỜI GIAN ---
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Thời gian gửi")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Thời gian cập nhật")
+
     class Meta:
-        # Sắp xếp tin nhắn cũ nhất lên trước (để hiển thị từ trên xuống dưới)
+        # Sắp xếp mặc định theo thời gian tăng dần (Tin nhắn cũ ở trên, mới ở dưới)
         ordering = ['created_at'] 
+        verbose_name = "Tin nhắn chat"
+        verbose_name_plural = "Quản lý tin nhắn"
 
     def __str__(self):
-        role = "Staff" if self.is_staff_reply else "Customer"
-        return f"[{role}] Message in Ticket #{self.consultation_id}"
+        sender_name = self.sender.get_full_name() if self.sender else "Khách hàng"
+        # Nếu không có text (chỉ có ảnh), hiển thị preview là loại file
+        if self.message:
+            msg_preview = self.message[:30] + ('...' if len(self.message) > 30 else '')
+        elif self.attachment:
+            msg_preview = f"[{self.get_attachment_type_display()}]"
+        else:
+            msg_preview = "[Tin nhắn trống]"
+            
+        return f"[{self.created_at.strftime('%H:%M %d/%m')}] {sender_name}: {msg_preview}"

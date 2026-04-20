@@ -31,7 +31,7 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY' # Chống bị nhúng vào iframe (Clickjacking)
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['hcm-tis-uat.tisbroker.local', 'localhost', '127.0.0.1', '192.168.18.206']
 
 
 # Application definition
@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'django_filters',
     # Local
     'api',
-    #'chat',
+    'chat',
 ]
 
 # 2. THÊM DÒNG NÀY (Bắt buộc)
@@ -94,8 +94,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'  # User đã đăng nhập
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day',   # Khách chỉ được gọi 100 lần/ngày
-        'user': '1000/day',  # User được gọi 1000 lần/ngày
+        'anon': '1000000/day',   # Khách chỉ được gọi 100 lần/ngày
+        'user': '1000000/day',  # User được gọi 1000 lần/ngày
     }
 }
 
