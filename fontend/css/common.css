@@ -154,3 +154,76 @@ img {
     border-radius: 2px;
     margin: 10px 0;
 }
+
+/* Nút bấm nổi góc phải */
+.chat-launcher {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: #D71920; /* Màu đỏ TIS */
+    color: white;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 999999 !important; /* Quan trọng: Bắt buộc nổi lên trên cùng */
+    transition: transform 0.3s;
+}
+
+.chat-widget {
+    z-index: 999999 !important;
+    /* ... các CSS cũ giữ nguyên ... */
+}
+/* Khung Chat nổi */
+.chat-widget {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 350px;
+    height: 450px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Bong bóng tin nhắn bên trong widget */
+.widget-msg {
+    max-width: 85%;
+    padding: 8px 12px;
+    border-radius: 15px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    word-wrap: break-word;
+}
+.widget-msg-left { background-color: #e9ecef; border-bottom-left-radius: 2px; }
+.widget-msg-right { background-color: #0d6efd; color: white; border-bottom-right-radius: 2px; margin-left: auto; }
+/* =========================================
+   FIX LỖI MENU DROPDOWN (HOVER CHỐNG RỚT)
+   ========================================= */
+
+/* Chỉ áp dụng cho màn hình máy tính (PC) */
+@media (min-width: 992px) {
+    /* 1. Tự động mở menu khi di chuột vào (không cần click) */
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+        margin-top: 0; /* Xóa margin mặc định của Bootstrap nếu có */
+    }
+
+    /* 2. Tạo cây cầu tàng hình nối liền chữ 'Sản phẩm' và box dropdown */
+    .nav-item.dropdown .dropdown-menu::before {
+        content: "";
+        position: absolute;
+        top: -15px; /* Có thể tăng/giảm con số này tùy theo khoảng trống thực tế của bạn (VD: -20px) */
+        left: 0;
+        width: 100%;
+        height: 15px; /* Phải bằng với giá trị tuyệt đối của top */
+        background-color: transparent; 
+        /* background-color: red; <-- Nếu muốn nhìn thấy cây cầu để căn chỉnh, hãy bật màu đỏ lên, sau khi căn xong thì tắt đi */
+    }
+}

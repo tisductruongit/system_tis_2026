@@ -58,3 +58,51 @@
         </div>
     </div>
 </footer>
+
+<button id="chat-widget-btn" class="chat-launcher">
+    <i class="fas fa-comments fs-3"></i>
+</button>
+
+<div id="chat-widget-window" class="chat-widget d-none">
+    <div class="chat-widget-header bg-primary text-white p-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold"><i class="fas fa-headset me-2"></i> Tư vấn trực tuyến</h6>
+        <button id="close-chat-btn" class="btn btn-sm btn-link text-white p-0"><i class="fas fa-times fs-5"></i></button>
+    </div>
+
+    <div id="chat-widget-form" class="p-3 bg-white">
+        <p class="text-muted small mb-3">Vui lòng để lại thông tin để chúng tôi hỗ trợ bạn tốt nhất.</p>
+        <form id="start-consultation-form">
+            <div class="mb-2">
+                <input type="text" id="chat-customer-name" class="form-control form-control-sm" placeholder="Họ và tên *" required>
+            </div>
+            <div class="mb-2">
+                <input type="text" id="chat-customer-phone" class="form-control form-control-sm" placeholder="Số điện thoại *" required>
+            </div>
+            <div class="mb-2">
+                <textarea id="chat-customer-note" class="form-control form-control-sm" rows="2" placeholder="Bạn cần tư vấn về vấn đề gì?"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm w-100">Bắt đầu chat</button>
+        </form>
+    </div>
+
+    <div id="chat-widget-conversation" class="d-none d-flex flex-column bg-light h-100">
+        <div id="chat-widget-messages" class="flex-grow-1 p-3 overflow-auto" style="height: 300px;">
+            <div class="text-center text-muted small my-2">Bắt đầu cuộc trò chuyện</div>
+        </div>
+        <div class="chat-widget-input border-top p-2 bg-white d-flex align-items-center">
+            <label for="chat-file-upload" class="mb-0 me-2 cursor-pointer text-secondary">
+                <i class="fas fa-image fs-5"></i>
+            </label>
+            <input type="file" id="chat-file-upload" class="d-none" accept="image/*, .pdf, .doc, .docx">
+            
+            <input type="text" id="chat-widget-input-text" class="form-control form-control-sm rounded-pill me-2" placeholder="Nhập tin nhắn...">
+            
+            <button id="chat-widget-send-btn" class="btn btn-primary btn-sm rounded-circle" style="width: 32px; height: 32px; padding: 0;">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script src="user/js/chat-widget.js"></script>

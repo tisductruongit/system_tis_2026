@@ -234,7 +234,6 @@ async function fetchHistory(id) {
         box.innerHTML = '<div class="text-danger text-center">Không thể tải lịch sử chat.</div>';
     }
 }
-
 function appendMessage(data) {
     const box = document.getElementById('message-box');
     const isMe = data.is_staff_reply; // Admin/Staff luôn là 'Me' (bên phải)
@@ -242,36 +241,92 @@ function appendMessage(data) {
     const alignClass = isMe ? 'msg-right' : 'msg-left';
     const justifyClass = isMe ? 'justify-content-end' : 'justify-content-start';
     
-    // Avatar cho tin nhắn khách (bên trái)
+    // 1. Logic Avatar cho khách hàng (bên trái)
+    const avatarLetter = data.sender_name ? data.sender_name.charAt(0).toUpperCase() : 'K';
     const avatarHtml = !isMe 
-        ? `<div class="msgr-avatar bg-light text-dark me-2" style="width:28px;height:28px;font-size:0.8rem;font-weight:bold">${data.sender_name?.charAt(0).toUpperCase() || 'K'}</div>` 
+        ? `<div class="msgr-avatar bg-light text-dark me-2" style="width:28px;height:28px;font-size:0.8rem;font-weight:bold">${avatarLetter}</div>` 
         : '';
     
-    // Xác định nếu cần hiển thị tên (grouping)
+    // 2. Logic hiển thị Tên (Chỉ hiển thị nếu là người khác và khác với tin nhắn liền trước)
     const lastMessage = box.lastElementChild;
-    const shouldShowName = !lastMessage || lastMessage.dataset.sender !== data.sender_name || !data.is_staff_reply === lastMessage.dataset.isStaff;
+    const shouldShowName = !lastMessage || 
+                           lastMessage.dataset.sender !== String(data.sender_name) || 
+                           lastMessage.dataset.isstaff !== String(isMe);
+                           
+    const nameHtml = (shouldShowName && !isMe) 
+        ? `<small class="text-muted text-truncate ms-2 mb-1" style="font-size:0.7rem; max-width:150px;">${data.sender_name || 'Khách hàng'}</small>` 
+        : '';
     
-    const nameHtml = shouldShowName && !isMe ? `<small class="text-muted text-truncate ms-2" style="font-size:0.7rem;width:28px;text-align:center">${data.sender_name || 'Khách'}</small>` : '';
+    // 3. Logic Nội dung: Xử lý Text & Tệp đính kèm
+    let contentHtml = '';
     
-    // Status check marks (✓✓ for seen, ✓ for sent)
-    const statusHtml = isMe ? `<small class="text-success ms-1" style="font-size:0.8rem;" title="Đã gửi">✓✓</small>` : '';
+    // Nếu có chữ (hỗ trợ xuống dòng bằng cách thay \n thành <br>)
+    if (data.message) {
+        // Escape HTML để chống XSS (bảo mật)
+        const safeText = data.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        contentHtml += `<div class="msg-text">${safeText.replace(/\n/g, '<br>')}</div>`;
+    }
 
+    // Nếu có file đính kèm
+    if (data.attachment_url) {
+        const marginClass = data.message ? 'mt-2' : ''; // Nếu có cả text thì cách ra 1 chút
+        
+        if (data.attachment_type === 'image') {
+            contentHtml += `
+                <div class="${marginClass}">
+                    <a href="${data.attachment_url}" target="_blank" title="Bấm để xem ảnh lớn">
+                        <img src="${data.attachment_url}" alt="Image" style="max-width: 220px; max-height: 250px; border-radius: 8px; object-fit: cover;">
+                    </a>
+                </div>`;
+        } else {
+            // Hiển thị dạng file document/khác
+            const linkColor = isMe ? 'text-white' : 'text-primary';
+            contentHtml += `
+                <div class="${marginClass} p-2 rounded d-flex align-items-center gap-2" style="background: rgba(0,0,0,0.05);">
+                    <i class="fas fa-file-alt fs-4 ${linkColor}"></i>
+                    <a href="${data.attachment_url}" target="_blank" class="${linkColor} text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                        Tệp đính kèm
+                    </a>
+                </div>`;
+        }
+    }
+    
+    if (!contentHtml) contentHtml = '<i class="text-muted">Tin nhắn không có nội dung</i>';
+
+    // 4. Logic Trạng thái đã gửi / đã xem (Dành cho Admin)
+    let statusHtml = '';
+    if (isMe) {
+        if (data.is_read) {
+            statusHtml = `<span class="text-success ms-1" style="font-size:0.75rem;" title="Khách đã xem">✓✓</span>`;
+        } else {
+            statusHtml = `<span class="text-white-50 ms-1" style="font-size:0.75rem;" title="Đã gửi">✓</span>`;
+        }
+    }
+
+    // 5. Build HTML cuối cùng
     const html = `
-    <div class="d-flex w-100 ${justifyClass} mb-2 animate-fade-in" data-sender="${data.sender_name}" data-isStaff="${isMe}">
+    <div class="d-flex w-100 ${justifyClass} mb-2 animate-fade-in" data-sender="${data.sender_name}" data-isstaff="${isMe}">
          ${avatarHtml}
-         <div class="d-flex flex-column align-items-${isMe ? 'end' : 'start'}">
+         <div class="d-flex flex-column align-items-${isMe ? 'end' : 'start'}" style="max-width: 75%;">
             ${nameHtml}
-            <div class="msg-bubble ${alignClass}" title="${data.sender_name} • ${data.created_at}">
-                ${data.message}${statusHtml}
+            <div class="msg-bubble ${alignClass}" title="${data.sender_name || 'Hệ thống'} • ${data.created_at}">
+                ${contentHtml}
+                
+                <div class="d-flex align-items-center justify-content-end mt-1 gap-1" style="opacity: 0.8;">
+                    <small style="font-size:0.65rem;">${data.created_at}</small>
+                    ${statusHtml}
+                </div>
             </div>
-            <small class="text-muted mt-1" style="font-size:0.7rem">${data.created_at}</small>
          </div>
     </div>`;
 
-    // Nếu đang hiện thông báo trống thì xóa đi
+    // 6. Dọn dẹp Box & Thêm tin nhắn
+    // Xóa empty state hoặc spinner loading nếu có
     const emptyState = box.querySelector('.msgr-empty');
     if(emptyState) emptyState.remove();
-    if(box.querySelector('.text-center.text-muted')) box.innerHTML = '';
+    
+    const loadingSpinner = box.querySelector('.spinner-border');
+    if (loadingSpinner) box.innerHTML = '';
 
     box.insertAdjacentHTML('beforeend', html);
     scrollToBottom();
@@ -399,3 +454,4 @@ style.innerHTML = `
     }
 `;
 document.head.appendChild(style);
+
